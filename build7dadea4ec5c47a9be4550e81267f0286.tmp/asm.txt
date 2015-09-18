@@ -33,7 +33,7 @@ Disassembly of section .text:
   64:	0c 94 52 00 	jmp	0xa4	; 0xa4 <__bad_interrupt>
 
 00000068 <__ctors_start>:
-  68:	ba 00       	.word	0x00ba	; ????
+  68:	97 00       	.word	0x0097	; ????
 
 0000006a <__ctors_end>:
   6a:	11 24       	eor	r1, r1
@@ -64,12 +64,12 @@ Disassembly of section .text:
   8c:	04 c0       	rjmp	.+8      	; 0x96 <__do_global_ctors+0x10>
   8e:	22 97       	sbiw	r28, 0x02	; 2
   90:	fe 01       	movw	r30, r28
-  92:	0e 94 d8 00 	call	0x1b0	; 0x1b0 <__tablejump__>
+  92:	0e 94 b5 00 	call	0x16a	; 0x16a <__tablejump__>
   96:	c8 36       	cpi	r28, 0x68	; 104
   98:	d1 07       	cpc	r29, r17
   9a:	c9 f7       	brne	.-14     	; 0x8e <__do_global_ctors+0x8>
-  9c:	0e 94 d1 00 	call	0x1a2	; 0x1a2 <main>
-  a0:	0c 94 dc 00 	jmp	0x1b8	; 0x1b8 <_exit>
+  9c:	0e 94 ae 00 	call	0x15c	; 0x15c <main>
+  a0:	0c 94 b9 00 	jmp	0x172	; 0x172 <_exit>
 
 000000a4 <__bad_interrupt>:
   a4:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -101,187 +101,137 @@ void HardwareSerial::_tx_udr_empty_irq(void)
 000000c2 <_ZN14HardwareSerial5writeEh>:
 }
 
-size_t HardwareSerial::write(uint8_t c)
+void HardwareSerial::write(uint8_t c)
 {
-  c2:	cf 92       	push	r12
-  c4:	df 92       	push	r13
-  c6:	ff 92       	push	r15
-  c8:	0f 93       	push	r16
-  ca:	1f 93       	push	r17
-  cc:	cf 93       	push	r28
-  ce:	df 93       	push	r29
-  d0:	1f 92       	push	r1
-  d2:	cd b7       	in	r28, 0x3d	; 61
-  d4:	de b7       	in	r29, 0x3e	; 62
-  d6:	6c 01       	movw	r12, r24
+  c2:	0f 93       	push	r16
+  c4:	1f 93       	push	r17
+  c6:	cf 93       	push	r28
+  c8:	df 93       	push	r29
+  ca:	1f 92       	push	r1
+  cc:	cd b7       	in	r28, 0x3d	; 61
+  ce:	de b7       	in	r29, 0x3e	; 62
+  d0:	8c 01       	movw	r16, r24
   // If the buffer and the data register is empty, just write the byte
   // to the data register and be done. This shortcut helps
   // significantly improve the effective datarate at high (>
   // 500kbit/s) bitrates, where interrupt overhead becomes a slowdown.
   if (_tx_buffer_head == _tx_buffer_tail && bit_is_set(*_ucsra, UDRE0)) {
-  d8:	dc 01       	movw	r26, r24
-  da:	16 96       	adiw	r26, 0x06	; 6
-  dc:	9c 91       	ld	r25, X
-  de:	16 97       	sbiw	r26, 0x06	; 6
-  e0:	17 96       	adiw	r26, 0x07	; 7
-  e2:	8c 91       	ld	r24, X
-  e4:	17 97       	sbiw	r26, 0x07	; 7
-  e6:	98 13       	cpse	r25, r24
-  e8:	05 c0       	rjmp	.+10     	; 0xf4 <_ZN14HardwareSerial5writeEh+0x32>
-  ea:	ed 91       	ld	r30, X+
-  ec:	fc 91       	ld	r31, X
-  ee:	80 81       	ld	r24, Z
-  f0:	85 fd       	sbrc	r24, 5
-  f2:	2a c0       	rjmp	.+84     	; 0x148 <_ZN14HardwareSerial5writeEh+0x86>
+  d2:	dc 01       	movw	r26, r24
+  d4:	16 96       	adiw	r26, 0x06	; 6
+  d6:	9c 91       	ld	r25, X
+  d8:	16 97       	sbiw	r26, 0x06	; 6
+  da:	17 96       	adiw	r26, 0x07	; 7
+  dc:	8c 91       	ld	r24, X
+  de:	17 97       	sbiw	r26, 0x07	; 7
+  e0:	98 13       	cpse	r25, r24
+  e2:	05 c0       	rjmp	.+10     	; 0xee <_ZN14HardwareSerial5writeEh+0x2c>
+  e4:	ed 91       	ld	r30, X+
+  e6:	fc 91       	ld	r31, X
+  e8:	80 81       	ld	r24, Z
+  ea:	85 fd       	sbrc	r24, 5
+  ec:	0f c0       	rjmp	.+30     	; 0x10c <_ZN14HardwareSerial5writeEh+0x4a>
     *_udr = c;
     sbi(*_ucsra, TXC0);
-    return 1;
+    return;
   }
 
-  tx_buffer_index_t i = (_tx_buffer_head + 1) % SERIAL_TX_BUFFER_SIZE;
-  f4:	f6 01       	movw	r30, r12
-  f6:	06 81       	ldd	r16, Z+6	; 0x06
-  f8:	10 e0       	ldi	r17, 0x00	; 0
-  fa:	0f 5f       	subi	r16, 0xFF	; 255
-  fc:	1f 4f       	sbci	r17, 0xFF	; 255
-  fe:	0f 73       	andi	r16, 0x3F	; 63
- 100:	11 27       	eor	r17, r17
- 102:	f0 2e       	mov	r15, r16
-	
-  // If the output buffer is full, there's nothing for it other than to 
-  // wait for the interrupt handler to empty it a bit
-  while (i == _tx_buffer_tail) {
- 104:	f6 01       	movw	r30, r12
- 106:	87 81       	ldd	r24, Z+7	; 0x07
- 108:	f8 12       	cpse	r15, r24
- 10a:	0f c0       	rjmp	.+30     	; 0x12a <_ZN14HardwareSerial5writeEh+0x68>
-    if (bit_is_clear(SREG, SREG_I)) {
- 10c:	0f b6       	in	r0, 0x3f	; 63
- 10e:	07 fc       	sbrc	r0, 7
- 110:	f9 cf       	rjmp	.-14     	; 0x104 <_ZN14HardwareSerial5writeEh+0x42>
-      // Interrupts are disabled, so we'll have to poll the data
-      // register empty flag ourselves. If it is set, pretend an
-      // interrupt has happened and call the handler to free up
-      // space for us.
-      if(bit_is_set(*_ucsra, UDRE0))
- 112:	d6 01       	movw	r26, r12
- 114:	ed 91       	ld	r30, X+
- 116:	fc 91       	ld	r31, X
- 118:	80 81       	ld	r24, Z
- 11a:	85 ff       	sbrs	r24, 5
- 11c:	f3 cf       	rjmp	.-26     	; 0x104 <_ZN14HardwareSerial5writeEh+0x42>
-	_tx_udr_empty_irq();
- 11e:	c6 01       	movw	r24, r12
- 120:	69 83       	std	Y+1, r22	; 0x01
- 122:	0e 94 5a 00 	call	0xb4	; 0xb4 <_ZN14HardwareSerial17_tx_udr_empty_irqEv>
- 126:	69 81       	ldd	r22, Y+1	; 0x01
- 128:	ed cf       	rjmp	.-38     	; 0x104 <_ZN14HardwareSerial5writeEh+0x42>
-    } else {
-      // nop, the interrupt handler will free up space for us
-    }
+  while (0== _tx_buffer_tail) {
+  ee:	f8 01       	movw	r30, r16
+  f0:	87 81       	ldd	r24, Z+7	; 0x07
+  f2:	81 11       	cpse	r24, r1
+  f4:	06 c0       	rjmp	.+12     	; 0x102 <_ZN14HardwareSerial5writeEh+0x40>
+    _tx_udr_empty_irq();
+  f6:	c8 01       	movw	r24, r16
+  f8:	69 83       	std	Y+1, r22	; 0x01
+  fa:	0e 94 5a 00 	call	0xb4	; 0xb4 <_ZN14HardwareSerial17_tx_udr_empty_irqEv>
+  fe:	69 81       	ldd	r22, Y+1	; 0x01
+ 100:	f6 cf       	rjmp	.-20     	; 0xee <_ZN14HardwareSerial5writeEh+0x2c>
   }
-
   _tx_buffer[_tx_buffer_head] = c;
- 12a:	86 81       	ldd	r24, Z+6	; 0x06
- 12c:	e8 0f       	add	r30, r24
- 12e:	f1 1d       	adc	r31, r1
- 130:	60 87       	std	Z+8, r22	; 0x08
-  _tx_buffer_head = i;
- 132:	d6 01       	movw	r26, r12
- 134:	16 96       	adiw	r26, 0x06	; 6
- 136:	0c 93       	st	X, r16
- 138:	16 97       	sbiw	r26, 0x06	; 6
-	
-  sbi(*_ucsrb, UDRIE0);
- 13a:	12 96       	adiw	r26, 0x02	; 2
- 13c:	ed 91       	ld	r30, X+
- 13e:	fc 91       	ld	r31, X
- 140:	13 97       	sbiw	r26, 0x03	; 3
- 142:	80 81       	ld	r24, Z
- 144:	80 62       	ori	r24, 0x20	; 32
- 146:	0a c0       	rjmp	.+20     	; 0x15c <_ZN14HardwareSerial5writeEh+0x9a>
+ 102:	86 81       	ldd	r24, Z+6	; 0x06
+ 104:	e8 0f       	add	r30, r24
+ 106:	f1 1d       	adc	r31, r1
+ 108:	60 87       	std	Z+8, r22	; 0x08
+  
+  return;
+ 10a:	0b c0       	rjmp	.+22     	; 0x122 <_ZN14HardwareSerial5writeEh+0x60>
   // If the buffer and the data register is empty, just write the byte
   // to the data register and be done. This shortcut helps
   // significantly improve the effective datarate at high (>
   // 500kbit/s) bitrates, where interrupt overhead becomes a slowdown.
   if (_tx_buffer_head == _tx_buffer_tail && bit_is_set(*_ucsra, UDRE0)) {
     *_udr = c;
- 148:	d6 01       	movw	r26, r12
- 14a:	14 96       	adiw	r26, 0x04	; 4
- 14c:	ed 91       	ld	r30, X+
- 14e:	fc 91       	ld	r31, X
- 150:	15 97       	sbiw	r26, 0x05	; 5
- 152:	60 83       	st	Z, r22
+ 10c:	d8 01       	movw	r26, r16
+ 10e:	14 96       	adiw	r26, 0x04	; 4
+ 110:	ed 91       	ld	r30, X+
+ 112:	fc 91       	ld	r31, X
+ 114:	15 97       	sbiw	r26, 0x05	; 5
+ 116:	60 83       	st	Z, r22
     sbi(*_ucsra, TXC0);
- 154:	ed 91       	ld	r30, X+
- 156:	fc 91       	ld	r31, X
- 158:	80 81       	ld	r24, Z
- 15a:	80 64       	ori	r24, 0x40	; 64
- 15c:	80 83       	st	Z, r24
-  _tx_buffer_head = i;
-	
-  sbi(*_ucsrb, UDRIE0);
+ 118:	ed 91       	ld	r30, X+
+ 11a:	fc 91       	ld	r31, X
+ 11c:	80 81       	ld	r24, Z
+ 11e:	80 64       	ori	r24, 0x40	; 64
+ 120:	80 83       	st	Z, r24
+    _tx_udr_empty_irq();
+  }
+  _tx_buffer[_tx_buffer_head] = c;
   
-  return 1;
+  return;
 }
- 15e:	81 e0       	ldi	r24, 0x01	; 1
- 160:	90 e0       	ldi	r25, 0x00	; 0
- 162:	0f 90       	pop	r0
- 164:	df 91       	pop	r29
- 166:	cf 91       	pop	r28
- 168:	1f 91       	pop	r17
- 16a:	0f 91       	pop	r16
- 16c:	ff 90       	pop	r15
- 16e:	df 90       	pop	r13
- 170:	cf 90       	pop	r12
- 172:	08 95       	ret
+ 122:	0f 90       	pop	r0
+ 124:	df 91       	pop	r29
+ 126:	cf 91       	pop	r28
+ 128:	1f 91       	pop	r17
+ 12a:	0f 91       	pop	r16
+ 12c:	08 95       	ret
 
-00000174 <_GLOBAL__sub_I__ZN14HardwareSerial17_tx_udr_empty_irqEv>:
+0000012e <_GLOBAL__sub_I__ZN14HardwareSerial17_tx_udr_empty_irqEv>:
+  
+      volatile uint8_t *ucsra, volatile uint8_t *ucsrb,
      volatile uint8_t *udr):
     _ucsra(ucsra), _ucsrb(ucsrb), 
     _udr(udr),
     _tx_buffer_head(0), _tx_buffer_tail(0)
-{
-}
- 174:	80 ec       	ldi	r24, 0xC0	; 192
- 176:	90 e0       	ldi	r25, 0x00	; 0
- 178:	90 93 01 01 	sts	0x0101, r25
- 17c:	80 93 00 01 	sts	0x0100, r24
- 180:	81 ec       	ldi	r24, 0xC1	; 193
- 182:	90 e0       	ldi	r25, 0x00	; 0
- 184:	90 93 03 01 	sts	0x0103, r25
- 188:	80 93 02 01 	sts	0x0102, r24
- 18c:	86 ec       	ldi	r24, 0xC6	; 198
- 18e:	90 e0       	ldi	r25, 0x00	; 0
- 190:	90 93 05 01 	sts	0x0105, r25
- 194:	80 93 04 01 	sts	0x0104, r24
- 198:	10 92 06 01 	sts	0x0106, r1
- 19c:	10 92 07 01 	sts	0x0107, r1
- 1a0:	08 95       	ret
+ 12e:	80 ec       	ldi	r24, 0xC0	; 192
+ 130:	90 e0       	ldi	r25, 0x00	; 0
+ 132:	90 93 01 01 	sts	0x0101, r25
+ 136:	80 93 00 01 	sts	0x0100, r24
+ 13a:	81 ec       	ldi	r24, 0xC1	; 193
+ 13c:	90 e0       	ldi	r25, 0x00	; 0
+ 13e:	90 93 03 01 	sts	0x0103, r25
+ 142:	80 93 02 01 	sts	0x0102, r24
+ 146:	86 ec       	ldi	r24, 0xC6	; 198
+ 148:	90 e0       	ldi	r25, 0x00	; 0
+ 14a:	90 93 05 01 	sts	0x0105, r25
+ 14e:	80 93 04 01 	sts	0x0104, r24
+ 152:	10 92 06 01 	sts	0x0106, r1
+ 156:	10 92 07 01 	sts	0x0107, r1
+ 15a:	08 95       	ret
 
-000001a2 <main>:
+0000015c <main>:
 #include <Arduino.h>
 int main(void)
 {
 	setup();
- 1a2:	0e 94 54 00 	call	0xa8	; 0xa8 <setup>
+ 15c:	0e 94 54 00 	call	0xa8	; 0xa8 <setup>
  	for (;;) {
 		loop();
- 1a6:	0e 94 59 00 	call	0xb2	; 0xb2 <loop>
- 1aa:	fd cf       	rjmp	.-6      	; 0x1a6 <main+0x4>
+ 160:	0e 94 59 00 	call	0xb2	; 0xb2 <loop>
+ 164:	fd cf       	rjmp	.-6      	; 0x160 <main+0x4>
 
-000001ac <__tablejump2__>:
- 1ac:	ee 0f       	add	r30, r30
- 1ae:	ff 1f       	adc	r31, r31
+00000166 <__tablejump2__>:
+ 166:	ee 0f       	add	r30, r30
+ 168:	ff 1f       	adc	r31, r31
 
-000001b0 <__tablejump__>:
- 1b0:	05 90       	lpm	r0, Z+
- 1b2:	f4 91       	lpm	r31, Z
- 1b4:	e0 2d       	mov	r30, r0
- 1b6:	09 94       	ijmp
+0000016a <__tablejump__>:
+ 16a:	05 90       	lpm	r0, Z+
+ 16c:	f4 91       	lpm	r31, Z
+ 16e:	e0 2d       	mov	r30, r0
+ 170:	09 94       	ijmp
 
-000001b8 <_exit>:
- 1b8:	f8 94       	cli
+00000172 <_exit>:
+ 172:	f8 94       	cli
 
-000001ba <__stop_program>:
- 1ba:	ff cf       	rjmp	.-2      	; 0x1ba <__stop_program>
+00000174 <__stop_program>:
+ 174:	ff cf       	rjmp	.-2      	; 0x174 <__stop_program>

@@ -60,7 +60,7 @@ class HardwareSerial //: public Stream
 {
 }
 
-  size_t write(uint8_t);
+  void write(uint8_t);
    void _tx_udr_empty_irq(void);
 };
 extern HardwareSerial Serial;

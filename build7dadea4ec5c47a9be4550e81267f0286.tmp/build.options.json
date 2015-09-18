@@ -1,0 +1,8 @@
+{
+  "fqbn": "arduino:avr:uno",
+  "hardwareFolders": "/home/linuxuser/Downloads/arduino-nightly/hardware,/home/linuxuser/.arduino15/packages,/home/linuxuser/Documents/Arduino/sketchbook/hardware",
+  "librariesFolders": "/home/linuxuser/Documents/Arduino/sketchbook/libraries,/home/linuxuser/Downloads/arduino-nightly/libraries,/home/linuxuser/Downloads/arduino-nightly/hardware/arduino/avr/libraries",
+  "runtime.ide.version": "10606",
+  "sketchLocation": "/tmp/arduino_7dadea4ec5c47a9be4550e81267f0286/sketch_sep18a.ino",
+  "toolsFolders": "/home/linuxuser/Downloads/arduino-nightly/tools-builder,/home/linuxuser/Downloads/arduino-nightly/hardware/tools/avr,/home/linuxuser/.arduino15/packages"
+}
